@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  .hotel-description ul, .hotel-description-full ul {
+    @apply list-disc pl-5 my-3 space-y-1;
+  }
+  .hotel-description li strong, .hotel-description-full li strong {
+    @apply text-gray-900;
+  }
+  .hotel-description p, .hotel-description-full p {
+    @apply mb-3;
+  }
+
+  /* Advanced styling for hotel-content and hotel-card */
+  .hotel-content .intro, .hotel-card .hotel-summary p {
+    @apply text-gray-700 leading-relaxed mb-6;
+  }
+
+  .hotel-content .highlight-box, .hotel-card .hotel-pros, .hotel-card .hotel-cons {
+    @apply p-5 rounded-2xl mb-6 border transition-all duration-300;
+  }
+
+  .hotel-content .runner-friendly, .hotel-card .hotel-pros {
+    @apply bg-green-50/50 border-green-100 hover:bg-green-50;
+  }
+
+  .hotel-content .consideration, .hotel-card .hotel-cons {
+    @apply bg-amber-50/50 border-amber-100 hover:bg-amber-50;
+  }
+
+  /* Hide empty cons box */
+  .hotel-card .hotel-cons:has(ul:empty) {
+    @apply hidden;
+  }
+
+  .hotel-content h4, .hotel-card h4 {
+    @apply font-bold text-lg mb-3 uppercase tracking-wider flex items-center gap-2;
+  }
+
+  .hotel-card .hotel-pros h4 { @apply text-green-700; }
+  .hotel-card .hotel-cons h4 { @apply text-amber-700; }
+
+  .hotel-card .hotel-pros h4::before {
+    content: "";
+    @apply w-2 h-6 bg-green-500 rounded-full;
+  }
+
+  .hotel-card .hotel-cons h4::before {
+    content: "";
+    @apply w-2 h-6 bg-amber-500 rounded-full;
+  }
+
+  .hotel-content ul, .hotel-card ul {
+    @apply space-y-2 !list-none !pl-0;
+  }
+
+  .hotel-content li, .hotel-card li {
+    @apply flex items-start gap-3 text-gray-700;
+  }
+
+  .hotel-content .runner-friendly li::before, .hotel-card .hotel-pros li::before {
+    content: "✓";
+    @apply text-green-600 font-bold flex-shrink-0 mt-0.5;
+  }
+
+  .hotel-content .consideration p, .hotel-card .hotel-cons p {
+    @apply text-gray-700 leading-relaxed m-0;
+  }
+
+  .hotel-card .hotel-meta {
+    @apply flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-100;
+  }
+
+  .hotel-card .hotel-meta .price {
+    @apply bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold;
+  }
+
+  .hotel-card .hotel-meta .rating {
+    @apply bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium;
+  }
+
+  /* Utility to hide scrollbar */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
