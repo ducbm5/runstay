@@ -24,11 +24,13 @@ export default function App() {
 
   const fetchHotels = async () => {
     try {
+      console.log('Fetching hotels from:', TSV_URL);
       // Check cache
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
         const { data, timestamp } = JSON.parse(cached);
         if (Date.now() - timestamp < CACHE_TIME) {
+          console.log('Using cached hotel data');
           setHotels(data);
           if (data.length > 0) {
             setActiveLocationId(data[0].location_id || 'other');
@@ -39,16 +41,24 @@ export default function App() {
       }
 
       const response = await fetch(TSV_URL);
-      if (!response.ok) throw new Error('Không thể tải dữ liệu từ Google Sheets');
+      if (!response.ok) throw new Error(`Không thể tải dữ liệu từ Google Sheets (Status: ${response.status})`);
       
       const text = await response.text();
       const rows = text.split('\n').filter(row => row.trim() !== '');
+      console.log(`Parsed ${rows.length} rows from TSV`);
       
+      if (rows.length <= 1) {
+        throw new Error('Dữ liệu Google Sheets trống hoặc không đúng định dạng');
+      }
+
       // Skip header row
       const dataRows = rows.slice(1);
       
-      const parsedHotels: Hotel[] = dataRows.map((row) => {
+      const parsedHotels: Hotel[] = dataRows.map((row, index) => {
         const cols = row.split('\t');
+        if (cols.length < 9) {
+          console.warn(`Row ${index + 2} has insufficient columns:`, cols.length);
+        }
         return {
           id: cols[0] || Math.random().toString(36).substr(2, 9),
           hotel_id: cols[0] || '',
@@ -63,6 +73,7 @@ export default function App() {
         };
       });
 
+      console.log('Successfully parsed hotels:', parsedHotels.length);
       setHotels(parsedHotels);
       
       // Set initial active location if not set
@@ -77,8 +88,8 @@ export default function App() {
       }));
       setLoading(false);
     } catch (err) {
-      console.error('Fetch error:', err);
-      setError('Đã có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.');
+      console.error('Fetch error details:', err);
+      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.');
       setLoading(false);
     }
   };
