@@ -59,8 +59,10 @@ export default function App() {
         if (cols.length < 9) {
           console.warn(`Row ${index + 2} has insufficient columns:`, cols.length);
         }
+        // Ensure unique ID by combining hotel_id with index
+        const baseId = cols[0] || Math.random().toString(36).substr(2, 9);
         return {
-          id: cols[0] || Math.random().toString(36).substr(2, 9),
+          id: `${baseId}-${index}`,
           hotel_id: cols[0] || '',
           url: cols[1] || '',
           name: cols[2] || '',
@@ -68,8 +70,13 @@ export default function App() {
           description_html: cols[4] || '',
           map_url: cols[5] || '',
           location: cols[6] || '',
-          location_id: cols[7] || '',
-          update_time: cols[8] || ''
+          address: cols[7] || '',
+          price: cols[8] || '',
+          rating: cols[9] || '',
+          location_id: cols[10] || '',
+          contact_name: cols[11] || '',
+          contact_phone: cols[12] || '',
+          update_time: cols[13] || ''
         };
       });
 

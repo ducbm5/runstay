@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, MapPin, Navigation, Star, Send, User, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { ChevronRight, MapPin, Navigation, Star, Send, User, AlertCircle, CheckCircle, Loader2, Phone, Tag, Award } from 'lucide-react';
 import { Hotel, REVIEWS_SCRIPT_URL, REVIEWS_DATA_URL } from '../data/hotels';
 import { FacebookImageGrid } from './FacebookImageGrid';
 import { Lightbox } from './Lightbox';
@@ -48,16 +48,20 @@ export const HotelHighlightBox: React.FC<{ hotels: Hotel[]; onSelect: (hotel: Ho
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <div className="p-4">
-                <div className="flex items-center gap-1 text-blue-600 text-[10px] font-bold uppercase tracking-wider mb-1">
-                  <MapPin className="w-2.5 h-2.5" />
-                  {hotel.location}
+                <div className="p-4">
+                  {hotel.location && (
+                    <div className="flex items-center gap-1 text-blue-600 text-[10px] font-bold uppercase tracking-wider mb-1">
+                      <MapPin className="w-2.5 h-2.5" />
+                      {hotel.location}
+                    </div>
+                  )}
+                  <h3 className="font-bold text-lg text-gray-900 mb-1 leading-tight">{hotel.name}</h3>
+                  {hotel.description_html && (
+                    <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed mt-2">
+                      {hotel.description_html.replace(/<[^>]*>/g, '').trim()}
+                    </p>
+                  )}
                 </div>
-                <h3 className="font-bold text-lg text-gray-900 mb-1 leading-tight">{hotel.name}</h3>
-                <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed mt-2">
-                  {hotel.description_html.replace(/<[^>]*>/g, '').trim()}
-                </p>
-              </div>
             </motion.div>
           );
         })}
@@ -106,6 +110,26 @@ export const HotelListing: React.FC<{ hotels: Hotel[]; onSelect: (hotel: Hotel) 
                       </a>
                     )}
                   </div>
+                  {hotel.address && (
+                    <div className="flex items-center gap-1 text-gray-500 text-xs mt-1">
+                      <MapPin className="w-3 h-3" />
+                      <span>{hotel.address}</span>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center gap-4 mt-2">
+                    {hotel.rating && (
+                      <div className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-100">
+                        <Award className="w-3.5 h-3.5 fill-current" />
+                        <span className="text-xs font-bold">Điểm: {hotel.rating}</span>
+                      </div>
+                    )}
+                    {hotel.price && (
+                      <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1 rounded-lg border border-green-100">
+                        <Tag className="w-3.5 h-3.5" />
+                        <span className="text-xs font-bold">Giá: {hotel.price}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -118,12 +142,35 @@ export const HotelListing: React.FC<{ hotels: Hotel[]; onSelect: (hotel: Hotel) 
               </div>
 
               {/* Content */}
-              <div className="p-4">
-                <div 
-                  className="prose prose-sm max-w-none text-gray-800 hotel-description"
-                  dangerouslySetInnerHTML={{ __html: hotel.description_html }}
-                />
-              </div>
+              {hotel.description_html && (
+                <div className="p-4">
+                  <div 
+                    className="prose prose-sm max-w-none text-gray-800 hotel-description"
+                    dangerouslySetInnerHTML={{ __html: hotel.description_html }}
+                  />
+                </div>
+              )}
+
+              {/* Contact Info in Listing */}
+              {(hotel.contact_phone || hotel.contact_name) && (
+                <div className="px-4 py-3 bg-blue-50/50 border-t border-b border-gray-100 flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2 text-blue-700 text-sm font-medium">
+                    <Phone className="w-4 h-4" />
+                    <span>Đặt phòng:</span>
+                  </div>
+                  {hotel.contact_name && (
+                    <span className="text-gray-700 text-sm">{hotel.contact_name}</span>
+                  )}
+                  {hotel.contact_phone && (
+                    <a 
+                      href={`tel:${hotel.contact_phone}`}
+                      className="text-blue-600 text-sm font-bold hover:underline"
+                    >
+                      {hotel.contact_phone}
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Footer / Action */}
               <div className="px-4 pb-4 border-t border-gray-50 pt-3 flex justify-end">
@@ -169,10 +216,11 @@ const HotelReviews: React.FC<{ hotelId: string }> = ({ hotelId }) => {
       const rows = text.split('\n').filter(row => row.trim() !== '');
       
       // Header: id, hotelId, userName, rating, comment, status
-      const parsedReviews: Review[] = rows.slice(1).map((row) => {
+      const parsedReviews: Review[] = rows.slice(1).map((row, index) => {
         const cols = row.split('\t');
+        const baseId = cols[0] || `rev-${index}`;
         return {
-          id: cols[0] || '',
+          id: `${baseId}-${index}`,
           hotelId: cols[1] || '',
           userName: cols[2] || '',
           rating: Number(cols[3]) || 5,
@@ -403,6 +451,13 @@ export const HotelDetail: React.FC<{ hotel: Hotel; onBack: () => void }> = ({ ho
               {hotel.location}
             </div>
           )}
+
+          {hotel.address && (
+            <div className="inline-flex items-center gap-2 text-gray-600 font-medium bg-gray-100 px-4 py-2 rounded-xl">
+              <MapPin className="w-5 h-5 text-gray-400" />
+              {hotel.address}
+            </div>
+          )}
           
           {hotel.map_url && (
             <a 
@@ -417,6 +472,32 @@ export const HotelDetail: React.FC<{ hotel: Hotel; onBack: () => void }> = ({ ho
           )}
         </div>
 
+        <div className="flex flex-wrap gap-4 mb-8">
+          {hotel.rating && (
+            <div className="flex items-center gap-3 bg-amber-50 border border-amber-100 px-5 py-3 rounded-2xl">
+              <div className="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center shadow-lg shadow-amber-100">
+                <Award className="w-6 h-6 text-white fill-current" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold text-amber-600 tracking-wider">Điểm đánh giá</p>
+                <p className="text-xl font-black text-amber-700">{hotel.rating}</p>
+              </div>
+            </div>
+          )}
+          
+          {hotel.price && (
+            <div className="flex items-center gap-3 bg-green-50 border border-green-100 px-5 py-3 rounded-2xl">
+              <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center shadow-lg shadow-green-100">
+                <Tag className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold text-green-600 tracking-wider">Giá phòng từ</p>
+                <p className="text-xl font-black text-green-700">{hotel.price}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="mb-8">
           <FacebookImageGrid 
             images={images} 
@@ -424,10 +505,58 @@ export const HotelDetail: React.FC<{ hotel: Hotel; onBack: () => void }> = ({ ho
           />
         </div>
 
-        <div 
-          className="prose prose-lg max-w-none text-gray-800 mb-10 hotel-description-full"
-          dangerouslySetInnerHTML={{ __html: hotel.description_html }}
-        />
+        {hotel.description_html && (
+          <div 
+            className="prose prose-lg max-w-none text-gray-800 mb-10 hotel-description-full"
+            dangerouslySetInnerHTML={{ __html: hotel.description_html }}
+          />
+        )}
+
+        {/* Map Embed Section */}
+        {hotel.map_url && (
+          <div className="mb-10">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-600" />
+              Vị trí trên bản đồ
+            </h3>
+            <div className="w-full h-[300px] md:h-[400px] rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+              <iframe
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                style={{ border: 0 }}
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(hotel.name + ' ' + (hotel.location || ''))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        )}
+
+        {/* Contact & Booking Section */}
+        {(hotel.contact_phone || hotel.contact_name) && (
+          <div className="bg-blue-50 rounded-3xl p-6 md:p-8 mb-10 border border-blue-100 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <Phone className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h4 className="text-blue-900 font-bold text-lg">Liên hệ đặt phòng</h4>
+                {hotel.contact_name && (
+                  <p className="text-blue-700 font-medium">{hotel.contact_name}</p>
+                )}
+              </div>
+            </div>
+            {hotel.contact_phone && (
+              <a 
+                href={`tel:${hotel.contact_phone}`}
+                className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-2xl transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3 text-lg"
+              >
+                <Phone className="w-5 h-5 fill-current" />
+                {hotel.contact_phone}
+              </a>
+            )}
+          </div>
+        )}
 
         {/* Review System */}
         <HotelReviews hotelId={hotel.id} />
