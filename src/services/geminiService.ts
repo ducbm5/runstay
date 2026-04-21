@@ -26,16 +26,17 @@ export interface ModerationResult {
 
 export async function moderateComment(userName: string, comment: string): Promise<ModerationResult> {
   try {
-    const prompt = `Phân tích nội dung bình luận sau đây từ người dùng "${userName}":
+    const prompt = `Bạn là một chuyên gia kiểm duyệt nội dung của báo VnExpress. Hãy phân tích nội dung sau từ người dùng "${userName}":
 Nội dung: "${comment}"
 
-Kiểm tra dựa trên 4 quy tắc nghiêm ngặt:
-1. Phải đạt chuẩn thuần phong mỹ tục Việt Nam (không chửi thề, lăng mạ).
-2. Không phải là nội dung spam (ví dụ: lặp lại vô nghĩa, quảng cáo rác).
-3. Tuyệt đối không có nội dung phản động, xuyên tạc chính trị.
-4. Tuyệt đối không có nội dung về sex, khiêu dâm, bạo lực hoặc gây bạo loạn.
+Hãy kiểm tra cực kỳ nghiêm ngặt dựa trên 4 quy tắc:
+1. Thuần phong mỹ tục: Tuyệt đối không chấp nhận các từ chửi thề, lăng mạ, xúc phạm nhân phẩm, các từ lóng thô tục (kể cả viết tắt hoặc viết lách luật như "đm", "vcl", "vkl",...).
+2. Không Spam: Không chấp nhận nội dung rác, lặp lại vô nghĩa, quảng cáo dịch vụ.
+3. Chính trị: Tuyệt đối không chấp nhận nội dung phản động, xuyên tạc lịch sử, chính trị Việt Nam.
+4. Nội dung cấm: Không nội dung khiêu dâm, bạo lực, kích động bạo loạn.
 
-Nếu vi phạm bất kỳ quy tắc nào trong 4 quy tắc trên, hãy đặt isValid là false.`;
+Yêu cầu trả về JSON: {"isValid": boolean, "reason": string}.
+Nếu vi phạm bất kỳ điều nào, isValid phải là false và ghi rõ lý do bằng tiếng Việt.`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
@@ -47,14 +48,14 @@ Nếu vi phạm bất kỳ quy tắc nào trong 4 quy tắc trên, hãy đặt i
           properties: {
             isValid: {
               type: Type.BOOLEAN,
-              description: "True nếu đạt tất cả tiêu chuẩn, False nếu vi phạm bất kỳ tiêu chuẩn nào.",
+              description: "True nếu đạt chuẩn, False nếu vi phạm.",
             },
             reason: {
               type: Type.STRING,
-              description: "Lý do cụ thể nếu nội dung bị từ chối.",
+              description: "Lý do bằng tiếng Việt nếu bị từ chối.",
             },
           },
-          required: ["isValid"],
+          required: ["isValid", "reason"],
         },
       },
     });
