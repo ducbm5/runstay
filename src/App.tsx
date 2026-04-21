@@ -11,7 +11,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 type View = 'home' | 'detail';
 
 const CACHE_KEY = 'hotel_data_cache';
-const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
+const CACHE_TIME = 1 * 60 * 1000; // 1 minute
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('home');
@@ -63,32 +63,36 @@ export default function App() {
         const baseId = cols[0] || Math.random().toString(36).substr(2, 9);
         return {
           id: `${baseId}-${index}`,
-          hotel_id: cols[0] || '',
-          url: cols[1] || '',
-          name: cols[2] || '',
-          location: cols[3] || '',
-          address: cols[4] || '',
-          price: cols[5] || '',
-          rating: cols[6] || '',
-          stars: cols[7] || '',
-          reviews_count: cols[8] || '',
-          contact_name: cols[9] || '',
-          contact_phone: cols[10] || '',
+          hotel_id: (cols[0] || '').trim(),
+          url: (cols[1] || '').trim(),
+          name: (cols[2] || '').trim(),
+          location: (cols[3] || '').trim(),
+          address: (cols[4] || '').trim(),
+          price: (cols[5] || '').trim(),
+          rating: (cols[6] || '').trim(),
+          stars: (cols[7] || '').trim(),
+          reviews_count: (cols[8] || '').trim(),
+          contact_name: (cols[9] || '').trim(),
+          contact_phone: (cols[10] || '').trim(),
           gallery_html: cols[11] || '',
           description_html: cols[12] || '',
-          map_url: cols[13] || '',
-          location_id: cols[14] || '',
-          update_time: cols[15] || ''
+          map_url: (cols[13] || '').trim(),
+          location_id: (cols[14] || '').trim(),
+          update_time: (cols[15] || '').trim()
         };
       });
 
       console.log('Successfully parsed hotels:', parsedHotels.length);
       setHotels(parsedHotels);
       
-      // Set initial active location if not set
+      // Set initial active location if not set, OR if the current active one no longer exists
       if (parsedHotels.length > 0) {
-        const firstLocId = parsedHotels[0].location_id || 'other';
-        setActiveLocationId(firstLocId);
+        const availableLocIds = new Set(parsedHotels.map(h => h.location_id || 'other').filter(id => id !== ''));
+        
+        if (!activeLocationId || !availableLocIds.has(activeLocationId)) {
+          const firstLocId = parsedHotels[0].location_id || 'other';
+          setActiveLocationId(firstLocId);
+        }
       }
 
       localStorage.setItem(CACHE_KEY, JSON.stringify({
@@ -156,11 +160,13 @@ export default function App() {
     const locMap = new Map<string, { name: string; latestUpdate: number }>();
     
     hotels.forEach(h => {
-      if (h.location_id && h.location) {
+      const id = h.location_id || 'other';
+      if (id) {
         const currentUpdate = parseDate(h.update_time);
-        const existing = locMap.get(h.location_id);
+        const locName = h.location || id;
+        const existing = locMap.get(id);
         if (!existing || currentUpdate > existing.latestUpdate) {
-          locMap.set(h.location_id, { name: h.location, latestUpdate: currentUpdate });
+          locMap.set(id, { name: locName, latestUpdate: currentUpdate });
         }
       }
     });
