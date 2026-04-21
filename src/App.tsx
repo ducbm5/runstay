@@ -6,7 +6,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Hotel, TSV_URL } from './data/hotels';
 import { HotelHighlightBox, HotelListing, HotelDetail } from './components/HotelComponents';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 type View = 'home' | 'detail';
 
@@ -66,17 +66,19 @@ export default function App() {
           hotel_id: cols[0] || '',
           url: cols[1] || '',
           name: cols[2] || '',
-          gallery_html: cols[3] || '',
-          description_html: cols[4] || '',
-          map_url: cols[5] || '',
-          location: cols[6] || '',
-          address: cols[7] || '',
-          price: cols[8] || '',
-          rating: cols[9] || '',
-          location_id: cols[10] || '',
-          contact_name: cols[11] || '',
-          contact_phone: cols[12] || '',
-          update_time: cols[13] || ''
+          location: cols[3] || '',
+          address: cols[4] || '',
+          price: cols[5] || '',
+          rating: cols[6] || '',
+          stars: cols[7] || '',
+          reviews_count: cols[8] || '',
+          contact_name: cols[9] || '',
+          contact_phone: cols[10] || '',
+          gallery_html: cols[11] || '',
+          description_html: cols[12] || '',
+          map_url: cols[13] || '',
+          location_id: cols[14] || '',
+          update_time: cols[15] || ''
         };
       });
 
@@ -179,24 +181,25 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-        <p className="text-gray-600 font-medium">Đang tải dữ liệu khách sạn...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <Loader2 className="w-10 h-10 text-[#9F224E] animate-spin mb-4" />
+        <p className="text-[#888] font-bold uppercase tracking-widest text-[10px] font-sans">Đang tải dữ liệu...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 max-w-md">
-          <p className="text-red-500 font-bold text-lg mb-2">Lỗi!</p>
-          <p className="text-gray-600 mb-6">{error}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 text-center">
+        <div className="bg-white p-10 rounded-sm border border-gray-100 max-w-sm">
+          <AlertCircle className="w-12 h-12 text-[#9F224E] mx-auto mb-4 opacity-20" />
+          <p className="text-gray-900 font-serif font-black text-xl mb-4">Lỗi hệ thống</p>
+          <p className="text-[#666] text-sm mb-8 leading-relaxed font-serif">{error}</p>
           <button 
             onClick={() => { setLoading(true); fetchHotels(); }}
-            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+            className="w-full bg-[#9F224E] text-white px-6 py-4 rounded-none font-bold text-xs uppercase tracking-widest hover:bg-black transition-all"
           >
-            Thử lại
+            Thử lại ngay
           </button>
         </div>
       </div>
@@ -208,19 +211,19 @@ export default function App() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-white min-h-screen font-serif">
       {/* Location Menu */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
+      <div className="bg-white border-b-2 border-[#e5e5e5] sticky top-0 z-30">
         <div className="max-w-[800px] mx-auto px-4">
           <div className="flex items-center gap-8 overflow-x-auto no-scrollbar py-4">
             {locations.map(loc => (
               <button
                 key={loc.id}
                 onClick={() => handleLocationChange(loc.id)}
-                className={`whitespace-nowrap pb-2 text-sm font-extrabold transition-all border-b-2 uppercase tracking-tight ${
+                className={`whitespace-nowrap pb-1 text-xs font-bold transition-all border-b-2 uppercase tracking-wider font-sans ${
                   activeLocationId === loc.id 
-                    ? 'text-blue-600 border-blue-600' 
-                    : 'text-gray-400 border-transparent hover:text-gray-600'
+                    ? 'text-[#9F224E] border-[#9F224E]' 
+                    : 'text-[#757575] border-transparent hover:text-black'
                 }`}
               >
                 {loc.name}
@@ -231,21 +234,23 @@ export default function App() {
       </div>
 
       {/* Highlight Section */}
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-white border-b border-gray-100 mb-8 pt-4">
         <HotelHighlightBox hotels={filteredHotels} onSelect={handleSelectHotel} />
       </div>
 
       {/* Main Feed Section */}
-      <div className="py-4">
-        <div className="max-w-[800px] mx-auto px-4 mb-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">
-            {locations.find(l => l.id === activeLocationId)?.name || 'Khách sạn'}
-          </h2>
+      <div className="pb-20">
+        <div className="max-w-[800px] mx-auto px-4 mb-8 flex justify-between items-end border-b border-[#e5e5e5] pb-2">
+          <div>
+            <h2 className="text-xl font-bold text-[#9F224E] font-sans uppercase tracking-widest">
+              {locations.find(l => l.id === activeLocationId)?.name || 'Khách sạn'}
+            </h2>
+          </div>
           <button 
             onClick={() => { localStorage.removeItem(CACHE_KEY); setLoading(true); fetchHotels(); }}
-            className="text-xs text-blue-600 hover:underline"
+            className="text-[10px] font-bold uppercase tracking-widest text-[#757575] hover:text-[#9F224E] transition-colors font-sans"
           >
-            Làm mới dữ liệu
+            Làm mới
           </button>
         </div>
         
@@ -253,10 +258,10 @@ export default function App() {
           <HotelListing hotels={displayedHotels} onSelect={handleSelectHotel} />
           
           {filteredHotels.length > visibleCount && (
-            <div className="mt-8 flex justify-center">
+            <div className="mt-12 flex justify-center">
               <button
                 onClick={() => setVisibleCount(prev => prev + 10)}
-                className="bg-white border border-gray-200 text-blue-600 font-bold py-3 px-10 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                className="bg-white border border-[#e5e5e5] text-[#222] font-bold text-xs uppercase tracking-widest py-4 px-12 rounded-none hover:bg-gray-50 transition-all font-sans active:scale-95"
               >
                 Xem thêm tin
               </button>

@@ -3,17 +3,19 @@ export interface Hotel {
   hotel_id: string; // Column A
   url: string; // Column B
   name: string; // Column C
-  gallery_html: string; // Column D
-  description_html: string; // Column E
-  map_url?: string; // Column F
-  location?: string; // Column G
-  address?: string; // Column H
-  price?: string; // Column I
-  rating?: string; // Column J
-  location_id?: string; // Column K
-  contact_name?: string; // Column L
-  contact_phone?: string; // Column M
-  update_time: string; // Column N
+  location: string; // Column D
+  address: string; // Column E
+  price: string; // Column F
+  rating: string; // Column G
+  stars: string; // Column H
+  reviews_count: string; // Column I
+  contact_name: string; // Column J
+  contact_phone: string; // Column K
+  gallery_html: string; // Column L
+  description_html: string; // Column M
+  map_url: string; // Column N
+  location_id: string; // Column O
+  update_time: string; // Column P
 }
 
 export const TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQT7lw-MzWC0abldDLbCtrIgreJhcEnYPGt7a8vKGFrR1TSAuOf7Iq3uzztoedfLIIjO6mRnS61YdOa/pub?output=tsv';

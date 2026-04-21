@@ -1,11 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Cách truy cập an toàn cho Vite
-// LƯU Ý: Biến môi trường trên Vercel PHẢI bắt đầu bằng VITE_ để Vite có thể đọc được
-const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY || "";
+const apiKey = process.env.GEMINI_API_KEY || "";
 
 if (!apiKey) {
-  console.warn("CẢNH BÁO: VITE_GEMINI_API_KEY chưa được thiết lập. Hệ thống kiểm duyệt AI sẽ không hoạt động.");
+  console.warn("CẢNH BÁO: GEMINI_API_KEY chưa được thiết lập. Hệ thống kiểm duyệt AI sẽ không hoạt động.");
 }
 
 const ai = new GoogleGenAI({ apiKey: apiKey });
@@ -15,11 +13,22 @@ export interface ModerationResult {
   reason?: string;
 }
 
-export async function moderateComment(comment: string): Promise<ModerationResult> {
+export async function moderateComment(userName: string, comment: string): Promise<ModerationResult> {
   try {
+    const prompt = `Phân tích nội dung bình luận sau đây từ người dùng "${userName}":
+Nội dung: "${comment}"
+
+Kiểm tra dựa trên 4 quy tắc nghiêm ngặt:
+1. Phải đạt chuẩn thuần phong mỹ tục Việt Nam (không chửi thề, lăng mạ).
+2. Không phải là nội dung spam (ví dụ: lặp lại vô nghĩa, quảng cáo rác).
+3. Tuyệt đối không có nội dung phản động, xuyên tạc chính trị.
+4. Tuyệt đối không có nội dung về sex, khiêu dâm, bạo lực hoặc gây bạo loạn.
+
+Nếu vi phạm bất kỳ quy tắc nào trong 4 quy tắc trên, hãy đặt isValid là false.`;
+
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Phân tích bình luận sau đây xem có vi phạm thuần phong mỹ tục, chứa từ ngữ thô tục, xúc phạm hoặc không phù hợp hay không: "${comment}"`,
+      contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -27,11 +36,11 @@ export async function moderateComment(comment: string): Promise<ModerationResult
           properties: {
             isValid: {
               type: Type.BOOLEAN,
-              description: "True nếu bình luận phù hợp, False nếu vi phạm thuần phong mỹ tục.",
+              description: "True nếu đạt tất cả tiêu chuẩn, False nếu vi phạm bất kỳ tiêu chuẩn nào.",
             },
             reason: {
               type: Type.STRING,
-              description: "Lý do nếu bình luận không phù hợp.",
+              description: "Lý do cụ thể nếu nội dung bị từ chối.",
             },
           },
           required: ["isValid"],

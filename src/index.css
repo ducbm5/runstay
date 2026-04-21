@@ -1,94 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600;700;900&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Merriweather", ui-serif, Georgia, serif;
 }
 
 @layer base {
-  .hotel-description ul, .hotel-description-full ul {
-    @apply list-disc pl-5 my-3 space-y-1;
-  }
-  .hotel-description li strong, .hotel-description-full li strong {
-    @apply text-gray-900;
-  }
-  .hotel-description p, .hotel-description-full p {
-    @apply mb-3;
+  body {
+    @apply bg-white text-[#222] antialiased;
   }
 
-  /* Advanced styling for hotel-content and hotel-card */
-  .hotel-content .intro, .hotel-card .hotel-summary p {
-    @apply text-gray-700 leading-relaxed mb-6;
+  .hotel-description-full p {
+    @apply mb-8 text-[19px] leading-[1.85] text-[#333] font-normal font-serif;
   }
 
-  .hotel-content .highlight-box, .hotel-card .hotel-pros, .hotel-card .hotel-cons {
-    @apply p-5 rounded-2xl mb-6 border transition-all duration-300;
+  .hotel-description-full .sapo {
+    @apply font-bold text-[#000] text-[20px] mb-10 leading-relaxed;
   }
 
-  .hotel-content .runner-friendly, .hotel-card .hotel-pros {
-    @apply bg-green-50/50 border-green-100 hover:bg-green-50;
+  .hotel-description-full h1, .hotel-description-full h2, .hotel-description-full h3, .hotel-description-full h4 {
+    @apply font-serif font-black text-[#000] mt-10 mb-5 tracking-tight leading-tight;
   }
 
-  .hotel-content .consideration, .hotel-card .hotel-cons {
-    @apply bg-amber-50/50 border-amber-100 hover:bg-amber-50;
+  .hotel-description-full h2 { @apply text-3xl; }
+  .hotel-description-full h3 { @apply text-2xl; }
+
+  .hotel-description-full ul {
+    @apply space-y-4 mb-8 list-none pl-0;
   }
 
-  /* Hide empty cons box */
-  .hotel-card .hotel-cons:has(ul:empty) {
+  .hotel-description-full li {
+    @apply relative pl-8 text-[17px] text-[#333] font-serif leading-relaxed;
+  }
+
+  .hotel-description-full li::before {
+    content: "";
+    @apply absolute left-0 top-[12px] w-1.5 h-1.5 bg-[#9F224E] rounded-full;
+  }
+
+  /* Nearby Row Styling (Editorial Style) */
+  .nearby-row {
+    @apply flex flex-col md:flex-row gap-1 md:gap-6 mb-8 items-start;
+  }
+
+  .nearby-label {
+    @apply font-sans font-black text-[11px] text-[#9F224E] uppercase tracking-widest pt-1.5 min-w-[200px] shrink-0;
+  }
+
+  .nearby-items {
+    @apply text-[#444] font-serif text-[17px] leading-relaxed;
+  }
+
+  /* Compact Listing Description */
+  .hotel-description {
+    @apply text-base text-[#444] leading-relaxed overflow-hidden py-1;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+  }
+
+  /* Custom blocks often found in TSV HTML - Enhanced Editorial Style */
+  .hotel-content .highlight-box, 
+  .hotel-card .highlight-box,
+  .hotel-card .hotel-pros, 
+  .hotel-card .hotel-cons,
+  .hotel-description-full .uu-diem,
+  .hotel-description-full .nhuoc-diem,
+  .hotel-description-full .luu-y,
+  .hotel-description-full .dich-vu {
+    @apply p-8 mb-10 border border-[#eee] bg-[#fcfcfc] transition-all duration-300 relative overflow-hidden;
+  }
+
+  .hotel-description-full .highlight-text {
+    @apply font-bold text-[#9F224E];
+  }
+
+  /* Specific theme colors for different blocks */
+  .hotel-description-full .uu-diem, .hotel-card .hotel-pros {
+    @apply border-l-4 border-l-green-600;
+  }
+  
+  .hotel-description-full .nhuoc-diem, .hotel-card .hotel-cons {
+    @apply border-l-4 border-l-amber-500;
+  }
+
+  .hotel-description-full .luu-y {
+    @apply border-l-4 border-l-blue-500 bg-blue-50/30;
+  }
+
+  .hotel-description-full .dich-vu {
+    @apply border-l-4 border-l-[#9F224E];
+  }
+
+  .hotel-description-full h4, .hotel-card h4, 
+  .uu-diem h4, .nhuoc-diem h4, .luu-y h4, .dich-vu h4 {
+    @apply font-sans font-black text-[11px] uppercase tracking-[0.15em] mb-5 flex items-center gap-3 text-[#000];
+  }
+
+  .uu-diem h4 { @apply text-green-700; }
+  .nhuoc-diem h4 { @apply text-amber-700; }
+  .luu-y h4 { @apply text-blue-700; }
+  .dich-vu h4 { @apply text-[#9F224E]; }
+
+  .hotel-card .hotel-pros h4::before, .hotel-card .hotel-cons h4::before {
     @apply hidden;
   }
 
-  .hotel-content h4, .hotel-card h4 {
-    @apply font-bold text-lg mb-3 uppercase tracking-wider flex items-center gap-2;
-  }
-
-  .hotel-card .hotel-pros h4 { @apply text-green-700; }
-  .hotel-card .hotel-cons h4 { @apply text-amber-700; }
-
-  .hotel-card .hotel-pros h4::before {
-    content: "";
-    @apply w-2 h-6 bg-green-500 rounded-full;
-  }
-
-  .hotel-card .hotel-cons h4::before {
-    content: "";
-    @apply w-2 h-6 bg-amber-500 rounded-full;
-  }
-
   .hotel-content ul, .hotel-card ul {
-    @apply space-y-2 !list-none !pl-0;
+    @apply space-y-3 !list-none !pl-0;
   }
 
   .hotel-content li, .hotel-card li {
-    @apply flex items-start gap-3 text-gray-700;
+    @apply flex items-start gap-4 text-[#333] font-serif;
   }
 
-  .hotel-content .runner-friendly li::before, .hotel-card .hotel-pros li::before {
-    content: "✓";
-    @apply text-green-600 font-bold flex-shrink-0 mt-0.5;
+  .hotel-content .runner-friendly li::before, 
+  .hotel-card .hotel-pros li::before,
+  .uu-diem li::before,
+  .luu-y li::before,
+  .dich-vu li::before {
+    content: "•";
+    @apply text-[#9F224E] font-black flex-shrink-0;
   }
+}
 
-  .hotel-content .consideration p, .hotel-card .hotel-cons p {
-    @apply text-gray-700 leading-relaxed m-0;
-  }
+/* Utility to hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-  .hotel-card .hotel-meta {
-    @apply flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-100;
-  }
+/* Custom Range Slider */
+.rating-slider {
+  @apply w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#9F224E] transition-all;
+}
 
-  .hotel-card .hotel-meta .price {
-    @apply bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold;
-  }
+.rating-slider::-webkit-slider-thumb {
+  @apply appearance-none w-5 h-5 bg-[#9F224E] border-2 border-white rounded-full shadow-md hover:scale-110 transition-transform;
+}
 
-  .hotel-card .hotel-meta .rating {
-    @apply bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium;
-  }
-
-  /* Utility to hide scrollbar */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+.rating-slider::-moz-range-thumb {
+  @apply w-5 h-5 bg-[#9F224E] border-2 border-white rounded-full shadow-md hover:scale-110 transition-transform;
 }
