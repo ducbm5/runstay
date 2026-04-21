@@ -1,9 +1,20 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const apiKey = process.env.GEMINI_API_KEY || "";
+// Use a safe way to check for the API key that works in both build and dev environments
+const getApiKey = () => {
+  try {
+    // Vite's 'define' will replace this literal string, but we use a fallback to avoid ReferenceErrors
+    const key = process.env.GEMINI_API_KEY;
+    return key || "";
+  } catch (e) {
+    return "";
+  }
+};
+
+const apiKey = getApiKey();
 
 if (!apiKey) {
-  console.warn("CẢNH BÁO: GEMINI_API_KEY chưa được thiết lập. Hệ thống kiểm duyệt AI sẽ không hoạt động.");
+  console.warn("CẢNH BÁO: GEMINI_API_KEY chưa được thiết lập. Hãy đảm bảo bạn đã cấu hình Environment Variable trên Vercel.");
 }
 
 const ai = new GoogleGenAI({ apiKey: apiKey });
@@ -48,11 +59,19 @@ Nếu vi phạm bất kỳ quy tắc nào trong 4 quy tắc trên, hãy đặt i
       },
     });
 
-    const result = JSON.parse(response.text || '{"isValid": true}');
-    return result;
+    const text = response.text;
+    console.log("Moderation AI response received.");
+    
+    try {
+      const result = JSON.parse(text || '{"isValid": true}');
+      return result;
+    } catch (parseError) {
+      console.error("Failed to parse moderation JSON:", text);
+      return { isValid: true };
+    }
   } catch (error) {
-    console.error("Moderation error:", error);
-    // Default to valid if AI fails, or handle as needed
+    console.error("Moderation error details:", error);
+    // Trả về true để không chặn người dùng nếu AI gặp lỗi kỹ thuật (ví dụ: hết quota, sai key)
     return { isValid: true };
   }
 }
